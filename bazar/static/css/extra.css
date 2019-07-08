@@ -1,0 +1,10 @@
+
+/* hide y scrillbar, but still use scroll */
+
+html {
+  overflow:   scroll;
+}
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
+}

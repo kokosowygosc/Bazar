@@ -1,0 +1,21 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+
+<div class="pinax-messages-create-container">
+    <h2>Nowa wiadomość</h2>
+
+    <form class="comment-form" action="{% url "pinax_messages:message_create" %}" method="post">
+        {% csrf_token %}
+        <input type=hidden name="to_user" id="id_to_user" value="{{ form.to_user.value }}">
+        Tytuł:
+        <input type='text' name='subject' required id=id_subject' style="width: 400px;" value="Wiadomość dotycząca ogłoszenia"><br><br>
+
+        Treść wiadomości: </br> <input type='text' name='content' required id=id_content' style="width: 400px;">
+        <div class="form-actions">
+            <a href="{% url 'pinax_messages:inbox' %}" class="cancel">Anuluj</a>
+            <button>Wyślij</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

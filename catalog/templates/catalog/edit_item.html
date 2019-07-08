@@ -1,0 +1,33 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+
+        <h3>Edycja ogłoszenia: </h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p> Nazwa ogłoszenia: <input type="text" style="margin-left: 5px; width:800px" name="item_name" maxlength="50" value="{{ form_add_item.item_name|default_if_none:'' }}"> </p>
+            {% load l10n %}
+            <p> Cena: <input type="number" step="0.01" style="margin-left: 90px" name="item_price" maxlength="12" value="{{ form_add_item.item_price|default_if_none:''|unlocalize  }}"> zł </p>
+            <p> Opis ogłoszenia: <textarea style="margin-left: 20px; width: 800px; height: 300px;" type="text" name="item_description">{{ form_add_item.item_description|default_if_none:'' }}</textarea> </p>
+            <p> Zdjęcia:
+                {% for image in images %}
+                    {% load thumbnail %}
+                    {% thumbnail image.image "150x150" crop="center" as im %}
+                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"/>
+                    {% endthumbnail %}
+                    <a href="{{ request.build_absolute_uri }}/delete/{{ image.image }}"><b>X</b></a>
+                {% endfor %}
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    {{ form }}
+                {% endfor %}
+            </p>
+        <button type="submit">Edytuj przedmiot.</button>
+        </form>
+
+    {% else %}
+        <p> Zaloguj się aby edytować ogłoszenie. </p>
+        <p> <a href="/login">Zaloguj się.</a> </p>
+    {% endif %}
+
+{% endblock %}

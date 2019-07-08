@@ -1,0 +1,34 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+
+    {% if item_details %}
+        <ul>
+            <h2>{{ item_details.item_name }}</h2>
+            <h5> Opis ogłoszenia: {{ item_details.item_description }}</h5>
+            <h5> Cena: {{ item_details.item_price }} zł</h5>
+            <h5>
+                <a href="/user/{{ item_details.item_id_id }}">
+                    {% if user_details.first_name and user_details.last_name %}
+                        {{ user_details.first_name }} {{ user_details.last_name }}
+                    {% else %}
+                        {{ user_details.username }}
+                    {% endif %}
+                </a>
+            </h5>
+            <h5>{% for image in item_images %}
+                    {% load thumbnail %}
+                    {% thumbnail image.image "500x500" crop="center" as im %}
+                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"/>
+                    {% endthumbnail %}
+                {% endfor %}
+            </h5>
+
+            <a href="{% url 'pinax_messages:message_user_create' user_id=user_id %}" class="btn btn-default">Wyślij wiadomość do użytkownika</a>
+
+            <br><br><h6> Ogloszenie opublikowano: {{ item_details.pub_date }}</h6>
+        </ul>
+    {% else %}
+        <p>No items are available.</p>
+    {% endif %}
+
+{% endblock %}

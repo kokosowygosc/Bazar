@@ -1,0 +1,22 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+
+    {% if user_details %}
+        <ul>
+            <h2>{{ user_details.user_name }}</h2>
+            <h5> Adres e-mail: {{ user_details.email }}</h5>
+            <h5> Numer telefonu: {{ user_details.user_phonenumber }} </h5>
+            <h4> Przedmioty użytkownika: </h4>
+            {% for item in user_items %}
+                <li><a href="/item/{{ item.id }}">{{ item.item_name }}</a></li>
+            {% endfor %}
+
+        <!--{% for item in latest_items_list %}-->
+            <!--<li><a href="/item/{{ item.id }}/">{{ item.item_name }}</a></li>-->
+        <!--{% endfor %}-->
+        </ul>
+    {% else %}
+        <p>No items are available.</p>
+    {% endif %}
+
+{% endblock %}

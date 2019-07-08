@@ -1,0 +1,28 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+    {% load i18n %}
+    {% load pinax_messages_tags %}
+​
+    <div class="pinax-messages-inbox-container">
+        <h2 class="with-actions">
+            Skrzynka odbiorcza
+        </h2>
+
+        <section class="mailbox">
+            {% for thread in threads %}
+                <div class="thread {% if thread|unread:user %} unread {% endif %}">
+                    {% if thread|unread:user %} <b style="color:red"> Nowa wiadomość! </b> {% endif %}
+                    <a href="{{thread.get_absolute_url}}">
+                        <div class="latest-message">
+                            <div class="subject">Temat: <b> {{ thread.subject }} </b> </div>
+                        </div>
+                        <div class="participants">Rozmówca: {{ thread.users.all|join:", " }}</div>
+                    </a>
+                </div><br>
+            {% empty %}
+                <div class="no-messages">Nie masz wiadomości.</div>
+            {% endfor %}
+        </section>
+    </div>
+{% endblock %}
+
