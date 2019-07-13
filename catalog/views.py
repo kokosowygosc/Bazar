@@ -66,10 +66,12 @@ def login_page(request):
     return HttpResponse(template.render(context, request))
 
 def item_detail(request, item_id):
-    item_details = Item.objects.get(id=item_id)
-    item_images = Images.objects.filter(item_id=item_id)
-    user_details = User.objects.get(id=item_details.item_id_id)
-    user_id = item_details.item_id_id
+    try:
+        item_details = Item.objects.get(id=item_id)
+        item_images = Images.objects.filter(item_id=item_id)
+        user_details = User.objects.get(id=item_details.item_id_id)
+        user_id = item_details.item_id_id
+    except Exception: item_details = user_details = item_images = user_id = None
     template = loader.get_template('catalog/item.html')
     context = {
         'item_details' : item_details,
@@ -273,8 +275,10 @@ def user_settings(request):
     return HttpResponse(template.render(context, request))
 
 def user_page(request, user_id):
-    user_items = Item.objects.filter(item_id_id=user_id)
-    user_details = User.objects.get(id=user_id)
+    try:
+        user_items = Item.objects.filter(item_id_id=user_id)
+        user_details = User.objects.get(id=user_id)
+    except Exception: user_items = user_details = None
     template = loader.get_template('catalog/user.html')
     context = {
         'user_items' : user_items,

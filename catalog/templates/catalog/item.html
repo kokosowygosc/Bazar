@@ -1,34 +1,43 @@
 {% extends 'catalog/base.html' %}
 {% block content %}
+    <div class="container"><br>
+        {% if item_details %}
+            <div class="row">
+                <div class="col-8">
+                    <ul><br>
+                        <h5><b>Opis ogłoszenia: </b> {{ item_details.item_description }}</h5><br>
+                        <h5>{% for image in item_images %}
+                                {% load thumbnail %}
+                                {% thumbnail image.image "500x500" crop="center" as im %}
+                                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"/><br><br>
+                                {% endthumbnail %}
+                            {% endfor %}
+                        </h5>
+                    </ul>
+                </div>
+                <div class="col-4">
+                    <h2> {{ item_details.item_name }} </h2>
+                    <h5>Cena: <i>{{ item_details.item_price }}</i> zł</h5>
+                    <h5>Użytkownik:
+                        <i>
+                        <a href="/user/{{ item_details.item_id_id }}">
+                            {% if user_details.first_name and user_details.last_name %}
+                                {{ user_details.first_name }} {{ user_details.last_name }}
+                            {% else %}
+                                {{ user_details.username }}
+                            {% endif %}
+                        </a>
+                        </i>
+                    </h5>
 
-    {% if item_details %}
-        <ul>
-            <h2>{{ item_details.item_name }}</h2>
-            <h5> Opis ogłoszenia: {{ item_details.item_description }}</h5>
-            <h5> Cena: {{ item_details.item_price }} zł</h5>
-            <h5>
-                <a href="/user/{{ item_details.item_id_id }}">
-                    {% if user_details.first_name and user_details.last_name %}
-                        {{ user_details.first_name }} {{ user_details.last_name }}
-                    {% else %}
-                        {{ user_details.username }}
-                    {% endif %}
-                </a>
-            </h5>
-            <h5>{% for image in item_images %}
-                    {% load thumbnail %}
-                    {% thumbnail image.image "500x500" crop="center" as im %}
-                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"/>
-                    {% endthumbnail %}
-                {% endfor %}
-            </h5>
+                        <a class="btn btn-default" href="{% url 'pinax_messages:message_user_create' user_id=user_id %}">Wyślij wiadomość <span class="glyphicon glyphicon-envelope"></span></a>
 
-            <a href="{% url 'pinax_messages:message_user_create' user_id=user_id %}" class="btn btn-default">Wyślij wiadomość do użytkownika</a>
 
-            <br><br><h6> Ogloszenie opublikowano: {{ item_details.pub_date }}</h6>
-        </ul>
-    {% else %}
-        <p>No items are available.</p>
-    {% endif %}
-
+                    <h6> Ogloszenie opublikowano: {{ item_details.pub_date }}</h6>
+                </div>
+            </div>
+        {% else %}
+            <p>Taki przedmiot nie istnieje.</p>
+        {% endif %}
+    </div>
 {% endblock %}
