@@ -4,7 +4,7 @@
         {% if items_list %}
             {% for item in items_list %}
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-12">
                         <h3><a href="/item/{{ item.id }}">{{ item.item_name }}</a></h3>
                         <h6>{{ item.pub_date }}</h6>
                         <p><h4>{{ item.item_description|slice:":120" }}..</h4></p>
@@ -13,7 +13,7 @@
             {% endfor %}
         {% else %}
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-4">
                     <h2>Brak przedmiotów.</h2>
                 </div>
             </div>
