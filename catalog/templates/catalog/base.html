@@ -76,14 +76,16 @@
             </div>
         </nav>
         {% if messages %}
-            <ul class="messages">
+            <div class="col-sm-12">
+            <div class="messages" style="text-align: center">
                 {% for message in messages %}
                     <div class="alert alert-warning alert-dismissible">
                         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                         {{ message }}
                     </div>
                 {% endfor %}
-            </ul>
+            </div>
+            </div>
         {% endif %}
 
             {% block content %}{% endblock %}

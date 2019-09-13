@@ -13,13 +13,13 @@
                     </div>
                     <div class="form-group">
                         <label for="id_content">Treść wiadomości:</label>
-                        <input type="text" class="form-control" required id='id_content' name="content">
+                        <textarea type="text" class="form-control" required id='id_content' name="content"></textarea>
                     </div>
-                    <a href="{% url 'pinax_messages:inbox' %}" class="cancel">Anuluj</a>
-                    <button>Wyślij</button>
+                    <a class="btn btn-info" href="{% url 'pinax_messages:inbox' %}" class="cancel">Anuluj</a>
+                    <button class="btn btn-success">Wyślij</button>
                 </form>
             {% else %}
-                <p>Wiadomość do sa`mego siebie?</p>
+                <p>Wiadomość do samego siebie?</p>
             {% endif %}
         </div>
     </div>

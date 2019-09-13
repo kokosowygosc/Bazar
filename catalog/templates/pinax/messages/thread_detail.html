@@ -1,24 +1,38 @@
 {% extends 'catalog/base.html' %}
 {% block content %}
+    <div class="pinax-messages-thread-detail-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1 class="with-actions" style="text-align: center">
+                    {{ thread.subject }}
+                </h1>
+            </div>
+            <div class="col-sm-4">
+                {% for message in thread.messages.all %}
+                    <h6>({{ message.sent_at }})</h6>
+                    <h3 style="display: inline"><b>{{ message.sender.username }}</b> napisał:</h3>
+                    <i>{{ message.content|urlize|linebreaks }}</i>
+                {% endfor %}
+            </div>
+            <div class="col-sm-8">
+                <form class="comment-form" action="{% url "pinax_messages:thread_detail" thread.pk %}" method="post">
+                    <div class="form-group">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% load widget_tweaks %}
+                            <h3>Odpowiedź:</h3> {{ form.content|add_class:"form-control" }}
+                        </div>
+                        <div class="form-actions">
+                            <a class="btn btn-info" href="{% url "pinax_messages:inbox" %}" class="cancel">Anuluj</a>
+                            <button class="btn btn-primary" type="submit">Wyślij</button>
+                            <a style="float: right" class="btn btn-danger" href="{% url "pinax_messages:thread_delete" thread.pk %}">Usuń cały wątek</a>
+                        </div>
+                    </div>
+                </form>
 
-<div class="pinax-messages-thread-detail-container">
-    <h2 class="with-actions">
-        {{ thread.subject }}
-    </h2>
-
-    {% for message in thread.messages.all %}
-            <b>{{ message.sender.username }}</b> ({{ message.sent_at }}</i>)
-            <i>{{ message.content|urlize|linebreaks }}</i>
-    {% endfor %}
-
-    <form class="comment-form" action="{% url "pinax_messages:thread_detail" thread.pk %}" method="post">
-        {% csrf_token %}
-        {{ form.content }}
-        <div class="form-actions">
-            <a href="{% url "pinax_messages:inbox" %}" class="cancel">Anuluj</a>
-            <button>Wyślij</button> <br>
+            </div>
         </div>
-    </form>
-    <a href="{% url "pinax_messages:thread_delete" thread.pk %}">Usuń cały wątek</a>
-</div>
+    </div>
+    </div>
 {% endblock %}

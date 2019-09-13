@@ -2,27 +2,45 @@
 {% block content %}
     {% load i18n %}
     {% load pinax_messages_tags %}
-​
     <div class="pinax-messages-inbox-container">
-        <h2 class="with-actions">
-            Skrzynka odbiorcza
-        </h2>
-
-        <section class="mailbox">
-            {% for thread in threads %}
-                <div class="thread {% if thread|unread:user %} unread {% endif %}">
-                    {% if thread|unread:user %} <b style="color:red"> Nowa wiadomość! </b> {% endif %}
-                    <a href="{{thread.get_absolute_url}}">
-                        <div class="latest-message">
-                            <div class="subject">Temat: <b> {{ thread.subject }} </b> </div>
+        <div class="container"><br>
+            <h1 class="with-actions">
+                Skrzynka odbiorcza
+            </h1>
+            <section class="mailbox">
+                <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Temat wiadomości</th>
+                            <th>Użytkownicy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for thread in threads %}
+                        <div class="thread {% if thread|unread:user %} unread {% endif %}">
+                        {% if thread|unread:user %} <b style="color:red"> Nowa wiadomość! </b> {% endif %}
+                            <tr>
+                                <td>
+                                    <div class="latest-message">
+                                        <a href="{{thread.get_absolute_url}}">
+                                            <div class="subject">{{ thread.subject }}</div>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="participants"> {{ thread.users.all|join:", " }}</div>
+                                </td>
+                            </tr>
                         </div>
-                        <div class="participants">Rozmówca: {{ thread.users.all|join:", " }}</div>
-                    </a>
-                </div><br>
-            {% empty %}
-                <div class="no-messages">Nie masz wiadomości.</div>
-            {% endfor %}
-        </section>
+                        {% empty %}
+                            <div class="no-messages">Nie masz wiadomości.</div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </section>
+        </div>
     </div>
 {% endblock %}
 

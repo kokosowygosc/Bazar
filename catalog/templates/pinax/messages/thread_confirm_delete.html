@@ -1,23 +1,22 @@
 {% extends 'catalog/base.html' %}
 {% block content %}
+    <div class="container" style="text-align: center"><br>
+    <div class="pinax-messages-delete-container">
+        <h2>{% block head_title %}Potwierdź usunięcie wątku: {{ thread.subject }}{% endblock %}</h2>
+        {% url "pinax_messages:thread_delete" thread.pk as post_url %}
 
-{% block head_title %}Potwierdź usunięcie wątku: {{ thread.subject }}{% endblock %}
-
-<div class="pinax-messages-delete-container">
-    <h2>{{ thread.subject }}</h2>
-
-    {% url "pinax_messages:thread_delete" thread.pk as post_url %}
-
-    <div class="delete-warning" role="alert">
-        {% load i18n %}
-        {% trans "Jesteś pewien, że chcesz usunąć ten wątek?" %}
-    </div>
-
-    <form action="{{ post_url }}" method="POST">
-        {% csrf_token %}
-        <div class="form-actions">
-            <a href="{% url "pinax_messages:inbox" %}" class="cancel">{% trans "Anuluj" %}</a>
-            <button>{% trans "Usuń" %}</button>
+        <div class="delete-warning" role="alert">
+            {% load i18n %}
+            {% trans "Jesteś pewien, że chcesz usunąć ten wątek?" %}
         </div>
-    </form>
+
+        <form action="{{ post_url }}" method="POST">
+            {% csrf_token %}
+            <div class="form-actions">
+                <a class="btn btn-info" href="{% url "pinax_messages:inbox" %}" class="cancel">{% trans "Anuluj" %}</a>
+                <button class="btn btn-danger">{% trans "Usuń" %}</button>
+            </div>
+        </form>
+    </div>
+    </div>
 {% endblock %}
