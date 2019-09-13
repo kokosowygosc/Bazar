@@ -68,6 +68,7 @@ def login_page(request):
 def item_detail(request, item_id):
     item_details = Item.objects.get(id=item_id)
     item_images = Images.objects.filter(item_id=item_id)
+    item_count = range(len(item_images))
     user_details = User.objects.get(id=item_details.item_id_id)
     user_id = item_details.item_id_id
     template = loader.get_template('catalog/item.html')
@@ -76,6 +77,7 @@ def item_detail(request, item_id):
         'user_details' : user_details,
         'item_images' : item_images,
         'user_id' : user_id,
+        'item_count' : item_count,
     }
     return HttpResponse(template.render(context, request))
 
