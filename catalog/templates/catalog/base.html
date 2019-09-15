@@ -30,13 +30,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/add_item">Dodaj ogłoszenie </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">next Link</a>
-                    </li>
                 </ul>
             </div>
             <div class="navbar-collapse collapse order-3 dual-collapse2">
                 <ul class="navbar-nav ml-auto">
+                    {% if not user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Zaloguj się lub zarejestruj</a>
+                    </li>
+                    {% endif %}
                     <li class="nav-item">
                         <div class="navbar-text">
                             {% if user.is_authenticated %}
@@ -63,7 +65,14 @@
                         {% if user.is_authenticated %}
                             {% load i18n %}
                             {% block body_class %}
-                            <a class="nav-link" href="{% url 'pinax_messages:inbox' %}"><i class="fa fa-envelope"></i> {% trans "Wiadomości" %}</a>
+                            <a class="nav-link" href="{% url 'pinax_messages:inbox' %}">
+                                <i class="fa fa-envelope"></i>
+                                {% if unread_threads|length > 0 %}
+                                    <div style="color: #e2a545">{% trans "Nowe Wiadomości!" %}</div>
+                                {% else %}
+                                    <div>{% trans "Wiadomości" %}</div>
+                                {% endif %}
+                            </a>
                             {% endblock %}
                         {% endif %}
                     </li>

@@ -19,12 +19,12 @@
                     <tbody>
                         {% for thread in threads %}
                         <div class="thread {% if thread|unread:user %} unread {% endif %}">
-                        {% if thread|unread:user %} <b style="color:red"> Nowa wiadomość! </b> {% endif %}
                             <tr>
                                 <td>
                                     <div class="latest-message">
                                         <a href="{{thread.get_absolute_url}}">
-                                            <div class="subject">{{ thread.subject }}</div>
+                                            {% if thread|unread:user %} <b style="color:#e2a545; display: inline"> Nowa wiadomość! </b> {% endif %}
+                                            <div style="display: inline;" class="subject">{{ thread.subject }}</div>
                                         </a>
                                     </div>
                                 </td>

@@ -2,7 +2,7 @@
 {% block content %}
     <div class="container"><br>
     {% if user.is_authenticated %}
-        <h2>Dodawanie przedmiotu: </h2>
+        <h1>Dodawanie przedmiotu: </h1>
         <form method="post" action="" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
@@ -10,7 +10,7 @@
                 <input type="text" class="form-control" id="item_name" name="item_name" maxlength="50" value="{{ form_add_item.item_name.value|default_if_none:'' }}">
             </div>
             <div class="form-group">
-                <label for="item_price">Cena:</label>
+                <label for="item_price">Cena (zł):</label>
                 <input type="number" class="form-control" id="item_price" name="item_price" maxlength="12" step=0.01 value="{{ form_add_item.item_price.value|default_if_none:'' }}">
             </div>
             <div class="form-group">
@@ -25,7 +25,6 @@
                             {% render_field field class="file-field btn" %}
                     {% endfor %}
             {% endfor %}
-
             <br><br><button type="submit" class="btn btn-primary">Dodaj przedmiot.</button>
         </form>
     {% else %}

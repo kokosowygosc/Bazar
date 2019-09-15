@@ -1,15 +1,23 @@
 ﻿{% extends 'catalog/base.html' %}
 {% block content %}
     <div class="container"><br>
-        {% if items_list %}
-            {% for item in items_list %}
+        {% if items %}
+            {% for item, image in items %}
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-sm-4">
+                        {% load thumbnail %}
+                        {% thumbnail image.image "230x340" as im %}
+                        <a href="/item/{{ item.id }}">
+                            <img class="d-block w-100" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"/>
+                        </a>
+                        {% endthumbnail %}
+                    </div>
+                    <div class="col-sm-8">
                         <h3><a href="/item/{{ item.id }}">{{ item.item_name }}</a></h3>
                         <h6>{{ item.pub_date }}</h6>
                         <p><h4>{{ item.item_description|slice:":120" }}..</h4></p>
                     </div>
-                </div>
+                </div><br><br>
             {% endfor %}
         {% else %}
             <div class="row">

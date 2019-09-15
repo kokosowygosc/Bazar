@@ -19,7 +19,7 @@ import datetime, os
 
 ########################### CONSTS #####################################################################################
 
-images_quantity=3
+images_quantity=4
 
 ########################### MAIN PAGE ##################################################################################
 
@@ -69,7 +69,7 @@ def item_detail(request, item_id):
     try:
         item_details = Item.objects.get(id=item_id)
         item_images = Images.objects.filter(item_id=item_id)
-        item_count = range(len(item_images))
+        images_count = range(len(item_images))
         user_details = User.objects.get(id=item_details.item_id_id)
         user_id = item_details.item_id_id
     except Exception: item_details = user_details = item_images = user_id = None
@@ -79,7 +79,7 @@ def item_detail(request, item_id):
         'user_details' : user_details,
         'item_images' : item_images,
         'user_id' : user_id,
-        'item_count' : item_count,
+        'images_count' : images_count,
     }
     return HttpResponse(template.render(context, request))
 
@@ -93,9 +93,16 @@ def item_list(request):
         items = paginator.page(1)
     except EmptyPage:
         items = paginator.page(paginator.num_pages)
+
+    item_images = []
+    for item in items:
+        items_images = Images.objects.filter(item_id=item.id)
+        item_images.append([item_image for item_image in items_images][0])
+
     template = loader.get_template('catalog/index.html')
     context = {
-        'items_list' : items
+        'items' : zip(items, item_images),
+        'items_list' : items,
     }
     return HttpResponse(template.render(context, request))
 

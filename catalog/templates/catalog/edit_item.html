@@ -1,33 +1,47 @@
 {% extends 'catalog/base.html' %}
 {% block content %}
-    {% if user.is_authenticated %}
-
-        <h3>Edycja ogłoszenia: </h3>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <p> Nazwa ogłoszenia: <input type="text" style="margin-left: 5px; width:800px" name="item_name" maxlength="50" value="{{ form_add_item.item_name|default_if_none:'' }}"> </p>
-            {% load l10n %}
-            <p> Cena: <input type="number" step="0.01" style="margin-left: 90px" name="item_price" maxlength="12" value="{{ form_add_item.item_price|default_if_none:''|unlocalize  }}"> zł </p>
-            <p> Opis ogłoszenia: <textarea style="margin-left: 20px; width: 800px; height: 300px;" type="text" name="item_description">{{ form_add_item.item_description|default_if_none:'' }}</textarea> </p>
-            <p> Zdjęcia:
+    <div class="container"><br>
+        {% if user.is_authenticated %}
+            <h1>Edycja ogłoszenia: </h1>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="item_name">Nazwa ogłoszenia:</label>
+                    <input type="text" class="form-control" id="item_name" name="item_name" maxlength="50" value="{{ form_add_item.item_name|default_if_none:'' }}">
+                </div>
+                {% load l10n %}
+                <div class="form-group">
+                    <label for="item_price">Cena (zł):</label>
+                    <input type="number" class="form-control" id="item_price" name="item_price" maxlength="12" step=0.01 value="{{ form_add_item.item_price|default_if_none:''|unlocalize  }}">
+                </div>
+                <div class="form-group">
+                    <label for="item_description">Opis ogłoszenia:</label>
+                    <textarea type="text" class="form-control" id="item_description" name="item_description">{{ form_add_item.item_description|default_if_none:'' }}</textarea>
+                </div>
                 {% for image in images %}
-                    {% load thumbnail %}
-                    {% thumbnail image.image "150x150" crop="center" as im %}
-                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"/>
-                    {% endthumbnail %}
+                    <div style="text-align: center; display: inline-block">
+                        {% if forloop.first %} <div>Zdjęcie główne</div> {% endif %}
+                        {% load thumbnail %}
+                        {% thumbnail image.image "150x150" crop="center" as im %}
+                            <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"/>
+                        {% endthumbnail %}
+                    </div>
                     <a href="{{ request.build_absolute_uri }}/delete/{{ image.image }}"><b>X</b></a>
-                {% endfor %}
-                {{ formset.management_form }}
-                {% for form in formset %}
-                    {{ form }}
-                {% endfor %}
-            </p>
-        <button type="submit">Edytuj przedmiot.</button>
-        </form>
+                    {% endfor %}
+                    {% load widget_tweaks %}
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        {% for field in form %}
+                                {% render_field field class="file-field btn" %}
+                        {% endfor %}
+                    {% endfor %}
+                <br><br><button type="submit" class="btn btn-primary">Edytuj przedmiot.</button>
+            </form>
 
-    {% else %}
-        <p> Zaloguj się aby edytować ogłoszenie. </p>
-        <p> <a href="/login">Zaloguj się.</a> </p>
-    {% endif %}
+        {% else %}
+            <p> Zaloguj się aby edytować ogłoszenie. </p>
+            <p> <a href="/login">Zaloguj się.</a> </p>
+        {% endif %}
+    </div>
 
 {% endblock %}
