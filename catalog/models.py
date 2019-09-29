@@ -5,6 +5,7 @@ from django.template.defaultfilters import slugify
 
 class User(AbstractUser):
     user_phonenumber = models.IntegerField(unique=False, null=True, blank=True)
+    observing = models.CharField(max_length=200, default=None)
 
 class Item(models.Model):
     item_id = models.ForeignKey(User, on_delete=models.CASCADE)

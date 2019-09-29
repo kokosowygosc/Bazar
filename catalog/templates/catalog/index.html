@@ -16,6 +16,41 @@
                         <h3><a href="/item/{{ item.id }}">{{ item.item_name }}</a></h3>
                         <h6>{{ item.pub_date }}</h6>
                         <p><h4>{{ item.item_description|slice:":120" }}..</h4></p>
+                        {% if user.is_authenticated %}
+                            {% load app_filters %}
+                            {% for observe in user.observing|split_by %}
+                                {% if observe|slugify  == item.id|slugify  %}
+                                    <a onclick="return false;" id="observe{{item.id}}" href="#" data-catid="{{item.id}}" class="stopobservebutton btn btn-dark btn-lg">
+                                        <span class="glyphicon glyphicon-heart"></span> Obserwuj
+                                    </a>
+                                    {% define "True" as already_observing %}
+                                {% endif %}
+                                {% if already_observing != "True" and forloop.last %}
+                                    <a onclick="return false;" id="observe{{item.id}}" href="#" data-catid="{{item.id}}" class="observebutton btn btn-info btn-lg">
+                                        <span class="glyphicon glyphicon-heart"></span> Obserwuj
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+
+
+
+                            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+                            <script type="text/javascript">
+                                $('.observebutton').click(function(){
+                                    var catid;
+                                    catid = $(this).attr("data-catid");
+                                    $.ajax({
+                                        type:"GET",
+                                        url: "/observe",
+                                        data:{
+                                            item_id: catid
+                                        }
+                                    })
+                                    $(this).removeClass("observebutton btn-info")
+                                    $(this).addClass("stopobservebutton btn-dark")
+                                });
+                            </script>
+                        {% endif %}
                     </div>
                 </div><br><br>
             {% endfor %}

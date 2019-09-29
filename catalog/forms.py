@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 class DataForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'user_phonenumber']
+        fields = ['first_name', 'last_name', 'email', 'user_phonenumber', 'observing']
 
 class CustomUserCreationForm(forms.Form):
     username = forms.CharField(label="Nazwa użytkownika")

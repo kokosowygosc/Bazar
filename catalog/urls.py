@@ -31,6 +31,7 @@ urlpatterns = [
     path('user/edit_item/<int:item_id>/delete/images/<str:image_name>', views.edit_item, name='edit_item'),
     path('item/<int:item_id>', views.item_detail, name='item_detail'),
     path('add_item/', views.add_item, name='add_item'),
+    url(r'^observe/$', views.observe, name='observe'),
     url(r'^login/$', views.login_page, name='login'),
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^oauth/', include('social_django.urls', namespace='social')),

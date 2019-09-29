@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.views import View
 from django.template import loader
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -234,6 +235,28 @@ def delete_item(request, item_id):
     except IndexError: pass
     return redirect('items')
 
+@login_required
+def observe(request):
+    if request.method == 'GET':
+        item_id = request.GET['item_id']
+        if item_id:
+            user = User.objects.get(id=request.user.id)
+            observe = [observe for observe in user.observing.split('\n')]
+            if item_id not in observe:
+                if observe != ['']:
+                    observe.append(item_id)
+                    user.observing = '\n'.join(observe)
+                else: user.observing = item_id
+            else: pass
+            user.save()
+        else:
+            messages.error(request, 'Dane nie zostały zaktualizowane z uwagi na błędy!')
+
+        return HttpResponse("Success!")  # Sending an success response
+    else:
+        return HttpResponse("Request method is not a GET")
+
+
 ########################### USER #######################################################################################
 
 @login_required
@@ -339,3 +362,4 @@ def login_page(request):
 
 ########################### MESSAGES ###################################################################################
 
+# All inside default tool configuration, exept templates which are inside templates/pinax/...
