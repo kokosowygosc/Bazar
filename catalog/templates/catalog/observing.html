@@ -1,0 +1,64 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+    <div class="container"><br>
+        <h2>Obserwowane ogłoszenia</h2>
+        {% if observed_items %}
+            <ul>
+                {% for item, image in observed_items %}
+                    <li class="list-group-item" id="item_number_{{item.id}}">
+                        <div class="row">
+                            <div class="col-2">
+                                {% load thumbnail %}
+                                {% thumbnail image.image "70x120" as im %}
+                                <a href="/item/{{ item.id }}">
+                                    <img class="d-block w-100" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"/>
+                                </a>
+                                {% endthumbnail %}
+                            </div>
+                            <div class="col-10">
+                                <h4 style="display: inline;" class="list-group-item-heading">
+                                    <b>{{ item.item_name }} </b>
+                                </h4>
+                                <a href="/item/{{ item.id }}">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                    Podgląd ogłoszenia
+                                </a>
+                                <a id='button{{item.id}}' class="manage_observed" href="#" onclick='button_manage("{{item.id}}")' data-catid="{{item.id}}">
+                                    <h4 class="float-right">Usuń z obserwowanych
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </h4>
+                                </a><br><br>
+                                <h5><b>Treść Ogłoszenia:</b> {{ item.item_description|slice:":120" }}...</h5>
+
+                                <div class="pinax-messages-create-container">
+                                    {% if user.pk != form.to_user.value %}
+                                    <h5>Szybka wiadomość do ogłoszeniodawcy</h5>
+                                        <form class="comment-form" action="{% url "pinax_messages:message_create" %}" method="post">
+                                            {% csrf_token %}
+                                            <input type=hidden id="id_to_user" name="to_user" value="{{ item.item_id_id }}">
+                                            <input type=hidden id="id_subject" name="subject" value='Wiadomość dotycząca ogłoszenia <a href="/item/{{ item.id }}"> {{ item.item_name}} </a>'>
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <textarea type="text" class="form-control" required id='id_content' name="content"></textarea>
+                                                </div>
+                                                <button class="btn btn-mini btn-success">Wyślij</button>
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        <p>Wiadomość do samego siebie?</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <p>Brak obserwowanych przedmiotów.</p>
+                </li>
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}
