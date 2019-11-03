@@ -256,6 +256,31 @@ def observe(request):
     else:
         return HttpResponse("Request method is not a GET")
 
+@login_required
+def stopobserving(request):
+    if request.method == 'GET':
+        item_id = request.GET['item_id']
+        if item_id:
+            user = User.objects.get(id=request.user.id)
+            observe = [observe for observe in user.observing.split('\n')]
+            if item_id in observe:
+                observe.remove(item_id)
+                user.observing = '\n'.join(observe)
+            else: pass
+            user.save()
+        return HttpResponse("Success!")  # Sending an success response
+    else:
+        return HttpResponse("Request method is not a GET")
+
+@login_required
+def observed(request):
+    observing = User.objects.get(id=request.user.pk).observing.split('\n')
+    items = Item.objects.filter(id__in=observing)
+    template = loader.get_template('catalog/observing.html')
+    context = {
+        'observed_items' : items,
+    }
+    return HttpResponse(template.render(context, request))
 
 ########################### USER #######################################################################################
 

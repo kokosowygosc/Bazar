@@ -51,36 +51,41 @@
                             {% endif %}
                         </div>
                     </li>
+                    {% if user.observing %}
                     <li class="nav-item">
-                        {% if user.is_authenticated %}
-                            <a class="nav-link" href="/user/items/">Twoje ogłoszenia</a>
-                        {% endif %}
+                        <a class="nav-link" href="/user/observed/">Obserwowane <span class="glyphicon glyphicon-heart"></span></a>
                     </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
                     <li class="nav-item">
-                        {% if user.is_authenticated %}
-                            <a class="nav-link" href="/user/user_settings/">Ustawienia konta</a>
-                        {% endif %}
+                        <a class="nav-link" href="/user/items/">Twoje ogłoszenia</a>
                     </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
                     <li class="nav-item">
-                        {% if user.is_authenticated %}
-                            {% load i18n %}
-                            {% block body_class %}
-                            <a class="nav-link" href="{% url 'pinax_messages:inbox' %}">
-                                <i class="fa fa-envelope"></i>
-                                {% if unread_threads|length > 0 %}
-                                    <div style="color: #e2a545">{% trans "Nowe Wiadomości!" %}</div>
-                                {% else %}
-                                    <div>{% trans "Wiadomości" %}</div>
-                                {% endif %}
-                            </a>
-                            {% endblock %}
-                        {% endif %}
+                        <a class="nav-link" href="/user/user_settings/">Ustawienia konta</a>
                     </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
                     <li class="nav-item">
-                        {% if user.is_authenticated %}
-                            <a class="nav-link"href="/logout/">Wyloguj się</a>
-                        {% endif %}
+                        {% load i18n %}
+                        {% block body_class %}
+                        <a class="nav-link" href="{% url 'pinax_messages:inbox' %}">
+                            <i class="fa fa-envelope"></i>
+                            {% if unread_threads|length > 0 %}
+                                <div style="color: #e2a545">{% trans "Nowe Wiadomości!" %}</div>
+                            {% else %}
+                                <div>{% trans "Wiadomości" %}</div>
+                            {% endif %}
+                        </a>
+                        {% endblock %}
                     </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link"href="/logout/">Wyloguj się</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </nav>

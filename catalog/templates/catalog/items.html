@@ -4,6 +4,7 @@
         <h2>Twoje ogłoszenia</h2>
         {% if user_items %}
             {% for item in user_items %}
+                <ul>
                     <li class="list-group-item">
                         <h4 class="list-group-item-heading">{{ item.item_name }}</h4>
                         <a href="/item/{{ item.id }}"><span class="glyphicon glyphicon-search"></span> Podgląd ogłoszenia </a>
