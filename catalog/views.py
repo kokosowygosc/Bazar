@@ -16,11 +16,13 @@ from .forms import DataForm, ItemForm, CustomUserCreationForm, ImageForm
 from django.forms import modelformset_factory
 from django.contrib.auth import authenticate, login
 from sorl.thumbnail import delete as delete_thumbnail
-import datetime, os
+from django.core.cache import cache, caches
+import datetime, os, random
 
 ########################### CONSTS #####################################################################################
 
 images_quantity=4
+randomize_items_time=1200
 
 ########################### MAIN PAGE ##################################################################################
 
@@ -85,7 +87,12 @@ def item_detail(request, item_id):
     return HttpResponse(template.render(context, request))
 
 def item_list(request):
-    items_list = Item.objects.order_by('-pub_date')
+    if not cache.get('items_list'):
+        items_list = sorted(Item.objects.order_by('-pub_date'), key=lambda x: random.random())
+    else:
+        items_list = cache.get('items_list')
+    cache.set('items_list', list(items_list), randomize_items_time)
+
     paginator = Paginator(items_list, 3)
     page = request.GET.get('page')
     try:

@@ -15,7 +15,7 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <button type="submit" name="login" class="btn btn-primary">Zaloguj</button>
+                    <button type="submit" name="login" class="btn btn-primary">Zaloguj</button> / <a class="btn btn-primary" href="{% url 'social:begin' 'facebook' %}">Zaloguj się przez Facebook</a>
                 </form>
             </div>
             <div class="col-6">
@@ -35,7 +35,7 @@
                     </div>
                     <button type="submit" name="register" class="btn btn-primary">Zarejestruj</button>
                 </form>
-                <h2>Lub</h2>
+                <h4>Lub</h4><br>
                 <a class="btn btn-primary" href="{% url 'social:begin' 'facebook' %}">Załóż konto przez Facebook</a>
             </div>
         </div>
