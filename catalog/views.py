@@ -275,10 +275,17 @@ def stopobserving(request):
 @login_required
 def observed(request):
     observing = User.objects.get(id=request.user.pk).observing.split('\n')
-    items = Item.objects.filter(id__in=observing)
+    try:
+        items = Item.objects.filter(id__in=observing)
+    except ValueError: items = []
+    item_images = []
+    for item in items:
+        items_images = Images.objects.filter(item_id=item.id)
+        item_images.append([item_image for item_image in items_images][0])
+
     template = loader.get_template('catalog/observing.html')
     context = {
-        'observed_items' : items,
+        'observed_items' : zip(items, item_images),
     }
     return HttpResponse(template.render(context, request))
 

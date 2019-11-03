@@ -24,7 +24,7 @@
                                     <div class="latest-message">
                                         <a href="{{thread.get_absolute_url}}">
                                             {% if thread|unread:user %} <b style="color:#e2a545; display: inline"> Nowa wiadomość! </b> {% endif %}
-                                            <div style="display: inline;" class="subject">{{ thread.subject }}</div>
+                                            <div style="display: inline;" class="subject">{{ thread.subject|safe }}</div>
                                         </a>
                                     </div>
                                 </td>

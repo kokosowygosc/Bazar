@@ -2,7 +2,7 @@
 {% block content %}
     <div class="container" style="text-align: center"><br>
     <div class="pinax-messages-delete-container">
-        <h2>{% block head_title %}Potwierdź usunięcie wątku: {{ thread.subject }}{% endblock %}</h2>
+        <h2>{% block head_title %}Potwierdź usunięcie wątku: {{ thread.subject|safe }}{% endblock %}</h2>
         {% url "pinax_messages:thread_delete" thread.pk as post_url %}
 
         <div class="delete-warning" role="alert">
