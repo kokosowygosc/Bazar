@@ -36,7 +36,7 @@
                         </form>
                     {% else %}
                         <button type="button" disabled>Odłącz od Facebooka</button>
-                        <p style="color: #570003">Musisz <a href="/user/password">ustawić hasło</a> dla swojego konta przez odłączeniem konta Facebook.</p>
+                        <p style="color: #570003">Musisz ustawić hasło dla swojego konta przez odłączeniem konta Facebook.</p>
                     {% endif %}
                 {% else %}
                     <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-primary">Połącz z Facebookiem.</a>
@@ -49,10 +49,12 @@
                 {% endif %}
                 <form method="post">
                 {% csrf_token %}
-                    <div class="form-group">
-                        <label for="old_password">Stare hasło: </label>
-                        <input type="password" class="form-control" id="old_password" name="old_password" maxlength="30">
-                    </div>
+                    {% if user.has_usable_password %}
+                        <div class="form-group">
+                            <label for="old_password">Stare hasło: </label>
+                            <input type="password" class="form-control" id="old_password" name="old_password" maxlength="30">
+                        </div>
+                    {% endif %}
                     <div class="form-group">
                         <label for="new_password1">Nowe hasło: </label>
                        <input type="password" class="form-control" id="new_password1" name="new_password1" maxlength="30">

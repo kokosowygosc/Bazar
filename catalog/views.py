@@ -1,40 +1,40 @@
 ﻿# -*- coding: utf-8 -*-
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.urls import reverse
-from django.views import View
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import Item, User, Images
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .helpers import user_is_not_logged_in
 from social_django.models import UserSocialAuth
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from django.contrib.auth.forms import AdminPasswordChangeForm, PasswordChangeForm, AuthenticationForm
+from django.contrib.auth.forms import AdminPasswordChangeForm, PasswordChangeForm, AuthenticationForm, SetPasswordForm
 from .forms import DataForm, ItemForm, CustomUserCreationForm, ImageForm
 from django.forms import modelformset_factory
 from django.contrib.auth import authenticate, login
 from sorl.thumbnail import delete as delete_thumbnail
-from django.core.cache import cache, caches
+from django.core.cache import cache
 import datetime, os, random
 
-########################### CONSTS #####################################################################################
+# CONSTS ##############################################################################################################
 
-images_quantity=4
-randomize_items_time=1200
+images_quantity = 4
+randomize_items_time = 1200
 
-########################### MAIN PAGE ##################################################################################
+
+# MAIN PAGE ###########################################################################################################
 
 def user_page(request, user_id):
     user_items = Item.objects.filter(item_id_id=user_id)
     user_details = User.objects.get(id=user_id)
     template = loader.get_template('catalog/user.html')
     context = {
-        'user_items' : user_items,
+        'user_items': user_items,
         'user_details': user_details
     }
     return HttpResponse(template.render(context, request))
+
 
 @user_passes_test(user_is_not_logged_in, login_url='index')
 def login_page(request):
@@ -68,23 +68,27 @@ def login_page(request):
     }
     return HttpResponse(template.render(context, request))
 
+
 def item_detail(request, item_id):
+    images_count = None
     try:
         item_details = Item.objects.get(id=item_id)
         item_images = Images.objects.filter(item_id=item_id)
         images_count = range(len(item_images))
         user_details = User.objects.get(id=item_details.item_id_id)
         user_id = item_details.item_id_id
-    except Exception: item_details = user_details = item_images = user_id = None
+    except Exception:
+        item_details = user_details = item_images = user_id = None
     template = loader.get_template('catalog/item.html')
     context = {
-        'item_details' : item_details,
-        'user_details' : user_details,
-        'item_images' : item_images,
-        'user_id' : user_id,
-        'images_count' : images_count,
+        'item_details': item_details,
+        'user_details': user_details,
+        'item_images': item_images,
+        'user_id': user_id,
+        'images_count': images_count,
     }
     return HttpResponse(template.render(context, request))
+
 
 def item_list(request):
     if not cache.get('items_list'):
@@ -96,34 +100,35 @@ def item_list(request):
     paginator = Paginator(items_list, 3)
     page = request.GET.get('page')
     try:
-        items = paginator.page(page)
+        list_of_items = paginator.page(page)
     except PageNotAnInteger:
-        items = paginator.page(1)
+        list_of_items = paginator.page(1)
     except EmptyPage:
-        items = paginator.page(paginator.num_pages)
+        list_of_items = paginator.page(paginator.num_pages)
 
     item_images = []
-    for item in items:
+    for item in list_of_items:
         items_images = Images.objects.filter(item_id=item.id)
         item_images.append([item_image for item_image in items_images][0])
 
     template = loader.get_template('catalog/index.html')
     context = {
-        'items' : zip(items, item_images),
-        'items_list' : items,
+        'items': zip(list_of_items, item_images),
+        'items_list': list_of_items,
     }
     return HttpResponse(template.render(context, request))
 
-########################### ITEMS ######################################################################################
+
+# ITEMS ###############################################################################################################
 
 def add_item(request):
     template = loader.get_template('catalog/add_item.html')
     context = {}
     if request.user.is_authenticated:
-        ImageFormSet = modelformset_factory(Images, form=ImageForm, extra=images_quantity)
+        imageformset = modelformset_factory(Images, form=ImageForm, extra=images_quantity)
         if request.method == 'POST':
             form_add_item = ItemForm(request.POST, instance=User())
-            formset = ImageFormSet(request.POST, request.FILES, queryset=Images.objects.none())
+            formset = imageformset(request.POST, request.FILES, queryset=Images.objects.none())
             request.encoding = 'utf-8'
             if form_add_item.is_valid() and formset.is_valid():
                 item = Item(
@@ -140,6 +145,7 @@ def add_item(request):
                         photo = Images(item=item, image=image)
                         photo.save()
                 messages.success(request, 'Przedmiot został dodany!')
+                cache.delete('items_list')
                 return redirect('items')
             elif not form_add_item.is_valid() or not formset.is_valid():
                 context = {
@@ -147,15 +153,18 @@ def add_item(request):
                     'formset': formset,
                 }
                 messages.error(request, 'Napotkano błędy!')
+                if form_add_item.errors:
+                    messages.error(request, form_add_item.errors)
                 return HttpResponse(template.render(context, request))
         else:
             form_add_item = ItemForm()
-            formset = ImageFormSet(queryset=Images.objects.none())
+            formset = imageformset(queryset=Images.objects.none())
         context = {
-            'form_add_item' : form_add_item,
-            'formset' : formset,
+            'form_add_item': form_add_item,
+            'formset': formset,
         }
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 def items(request):
@@ -163,48 +172,51 @@ def items(request):
     user_details = User.objects.get(id=request.user.pk)
     template = loader.get_template('catalog/items.html')
     context = {
-        'user_items' : user_items,
+        'user_items': user_items,
         'user_details': user_details
     }
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 def edit_item(request, item_id, image_name=None):
     instance = Item.objects.filter(id=int(item_id))
     try:
-        if (int(request.user.pk) == int(instance.values('item_id_id')[0]['item_id_id'])):
+        if int(request.user.pk) == int(instance.values('item_id_id')[0]['item_id_id']):
             template = loader.get_template('catalog/edit_item.html')
             instance = Item.objects.filter(id=int(item_id))
             images = Images.objects.filter(item_id=int(item_id))
-            ImageFormSet = modelformset_factory(Images, form=ImageForm, extra=images_quantity-len(images))
-            ImagesFormSet = ImageFormSet(queryset=Images.objects.none())
+            image_form_set = modelformset_factory(Images, form=ImageForm, extra=images_quantity - len(images))
+            images_form_set = image_form_set(queryset=Images.objects.none())
             context = {
                 'form_add_item': instance.values()[0],
                 'images': images,
-                'formset': ImagesFormSet,
+                'formset': images_form_set,
             }
             if image_name:
-                image = Images.objects.get(image=str('images/'+image_name))
-                image_name=None
+                image = Images.objects.get(image=str('images/' + image_name))
                 delete_thumbnail(image.image.path)
                 image.delete()
                 images = Images.objects.filter(item_id=int(item_id))
-                context['images']=images
-                ImageFormSet = modelformset_factory(Images, form=ImageForm, extra=images_quantity - len(images))
-                ImagesFormSet = ImageFormSet(queryset=Images.objects.none())
-                context['formset'] = ImagesFormSet
+                context['images'] = images
+                image_form_set = modelformset_factory(Images, form=ImageForm, extra=images_quantity - len(images))
+                images_form_set = image_form_set(queryset=Images.objects.none())
+                context['formset'] = images_form_set
                 instance = Item.objects.filter(id=int(item_id))
                 context['form_add_item'] = instance.values()[0]
                 messages.success(request, 'Edycja dokonana poprawnie!')
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             if request.method == 'POST':
                 form_edit_item = Item.objects.get(id=item_id)
-                form_edit_item.item_name = request.POST.get('item_name') if request.POST.get('item_name') else form_edit_item.item_name
-                form_edit_item.item_price = request.POST.get('item_price') if request.POST.get('item_price') else form_edit_item.item_price
-                form_edit_item.item_description = request.POST.get('item_description') if request.POST.get('item_description') else form_edit_item.item_description
+                form_edit_item.item_name = request.POST.get('item_name') if request.POST.get(
+                    'item_name') else form_edit_item.item_name
+                form_edit_item.item_price = request.POST.get('item_price') if request.POST.get(
+                    'item_price') else form_edit_item.item_price
+                form_edit_item.item_description = request.POST.get('item_description') if request.POST.get(
+                    'item_description') else form_edit_item.item_description
                 form_edit_item.save()
 
-                formset = ImageFormSet(request.POST, request.FILES, queryset=Images.objects.none())
+                formset = image_form_set(request.POST, request.FILES, queryset=Images.objects.none())
                 if formset.is_valid():
                     for form in formset.cleaned_data:
                         if form:
@@ -212,11 +224,11 @@ def edit_item(request, item_id, image_name=None):
                             photo = Images(item=form_edit_item, image=image)
                             photo.save()
                 images = Images.objects.filter(item_id=int(item_id))
-                ImageFormSet = modelformset_factory(Images, form=ImageForm, extra=images_quantity - len(images))
-                ImagesFormSet = ImageFormSet(queryset=Images.objects.none())
+                image_form_set = modelformset_factory(Images, form=ImageForm, extra=images_quantity - len(images))
+                images_form_set = image_form_set(queryset=Images.objects.none())
                 instance = Item.objects.filter(id=int(item_id))
                 context['images'] = images
-                context['formset'] = ImagesFormSet
+                context['formset'] = images_form_set
                 context['form_add_item'] = instance.values()[0]
                 messages.success(request, 'Edycja dokonana poprawnie!')
                 return HttpResponse(template.render(context, request))
@@ -228,19 +240,23 @@ def edit_item(request, item_id, image_name=None):
         messages.error(request, 'Błąd!')
         return redirect('items')
 
+
 @login_required
 def delete_item(request, item_id):
     instance = Item.objects.filter(id=int(item_id))
     images = Images.objects.filter(item_id=int(item_id))
     try:
-        if (int(request.user.pk) == int(instance.values('item_id_id')[0]['item_id_id'])):
+        if int(request.user.pk) == int(instance.values('item_id_id')[0]['item_id_id']):
             for image in images:
                 if os.path.isfile(image.image.path):
                     delete_thumbnail(image.image.path)
             instance.delete()
-        else: messages.error(request, 'Ten przedmiot nie należy do Ciebie!')
-    except IndexError: pass
+        else:
+            messages.error(request, 'Ten przedmiot nie należy do Ciebie!')
+    except IndexError:
+        pass
     return redirect('items')
+
 
 @login_required
 def observe(request):
@@ -248,13 +264,15 @@ def observe(request):
         item_id = request.GET['item_id']
         if item_id:
             user = User.objects.get(id=request.user.id)
-            observe = [observe for observe in user.observing.split('\n')]
-            if item_id not in observe:
-                if observe != ['']:
-                    observe.append(item_id)
-                    user.observing = '\n'.join(observe)
-                else: user.observing = item_id
-            else: pass
+            obs = [obs for obs in user.observing.split('\n')]
+            if item_id not in obs:
+                if obs != ['']:
+                    obs.append(item_id)
+                    user.observing = '\n'.join(obs)
+                else:
+                    user.observing = item_id
+            else:
+                pass
             user.save()
         else:
             messages.error(request, 'Dane nie zostały zaktualizowane z uwagi na błędy!')
@@ -263,44 +281,49 @@ def observe(request):
     else:
         return HttpResponse("Request method is not a GET")
 
+
 @login_required
 def stopobserving(request):
     if request.method == 'GET':
         item_id = request.GET['item_id']
         if item_id:
             user = User.objects.get(id=request.user.id)
-            observe = [observe for observe in user.observing.split('\n')]
-            if item_id in observe:
-                observe.remove(item_id)
-                user.observing = '\n'.join(observe)
-            else: pass
+            obs = [obs for obs in user.observing.split('\n')]
+            if item_id in obs:
+                obs.remove(item_id)
+                user.observing = '\n'.join(obs)
+            else:
+                pass
             user.save()
         return HttpResponse("Success!")  # Sending an success response
     else:
         return HttpResponse("Request method is not a GET")
 
+
 @login_required
 def observed(request):
     observing = User.objects.get(id=request.user.pk).observing.split('\n')
     try:
-        items = Item.objects.filter(id__in=observing)
-    except ValueError: items = []
+        list_of_items = Item.objects.filter(id__in=observing)
+    except ValueError:
+        list_of_items = []
     item_images = []
-    for item in items:
+    for item in list_of_items:
         items_images = Images.objects.filter(item_id=item.id)
         item_images.append([item_image for item_image in items_images][0])
 
     template = loader.get_template('catalog/observing.html')
     context = {
-        'observed_items' : zip(items, item_images),
+        'observed_items': zip(list_of_items, item_images),
     }
     return HttpResponse(template.render(context, request))
+
 
 ########################### USER #######################################################################################
 
 @login_required
 def user_settings(request):
-    #FACEBOOK
+    # FACEBOOK
     user = request.user
     try:
         facebook_login = user.social_auth.get(provider='facebook')
@@ -308,14 +331,16 @@ def user_settings(request):
         facebook_login = None
     can_disconnect = (user.social_auth.count() > 1 or user.has_usable_password())
 
-    #DATA EDIT
+    # DATA EDIT
     if request.user.has_usable_password():
-        PasswordForm = PasswordChangeForm
+        password_form = PasswordChangeForm
+    elif not request.user.has_usable_password():
+        password_form = SetPasswordForm
     else:
-        PasswordForm = AdminPasswordChangeForm
+        password_form = AdminPasswordChangeForm
 
     if request.method == 'POST':
-        form_password = PasswordForm(request.user, request.POST)
+        form_password = password_form(request.user, request.POST)
         form_change = DataForm(instance=request.user or None, data=request.POST or None)
 
         if 'change_data' in request.POST and form_change.is_valid():
@@ -331,10 +356,12 @@ def user_settings(request):
             messages.success(request, 'Hasło zostało zaktualizowane!')
         elif 'change_password' in request.POST and not form_password.is_valid():
             messages.error(request, 'Wystąpiły błędy w formularzu! Hasło nie zostało zaktualizowane!')
+            if form_password.errors:
+                messages.error(request, form_password.errors)
         return redirect('user_settings')
     else:
         form_change = DataForm(instance=request.user)
-        form_password = PasswordForm(request.user)
+        form_password = password_form(request.user)
 
     template = loader.get_template('catalog/user_settings.html')
     context = {
@@ -345,17 +372,20 @@ def user_settings(request):
     }
     return HttpResponse(template.render(context, request))
 
+
 def user_page(request, user_id):
     try:
         user_items = Item.objects.filter(item_id_id=user_id)
         user_details = User.objects.get(id=user_id)
-    except Exception: user_items = user_details = None
+    except Exception:
+        user_items = user_details = None
     template = loader.get_template('catalog/user.html')
     context = {
-        'user_items' : user_items,
+        'user_items': user_items,
         'user_details': user_details
     }
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 def delete_user(request):
@@ -363,6 +393,7 @@ def delete_user(request):
     if not request.user.is_superuser:
         instance.delete()
     return redirect('index')
+
 
 @user_passes_test(user_is_not_logged_in, login_url='index')
 def login_page(request):
@@ -399,6 +430,6 @@ def login_page(request):
     }
     return HttpResponse(template.render(context, request))
 
-########################### MESSAGES ###################################################################################
+# MESSAGES ############################################################################################################
 
 # All inside default tool configuration, exept templates which are inside templates/pinax/...
