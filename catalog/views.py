@@ -87,6 +87,10 @@ def item_detail(request, item_id):
         'user_id': user_id,
         'images_count': images_count,
     }
+    if item_details is None:
+        messages.warning(request, "Przedmiot najprawdopodobniej nie jest już dostępny")
+        cache.delete('items_list')
+        return redirect('index')
     return HttpResponse(template.render(context, request))
 
 
@@ -109,7 +113,10 @@ def item_list(request):
     item_images = []
     for item in list_of_items:
         items_images = Images.objects.filter(item_id=item.id)
-        item_images.append([item_image for item_image in items_images][0])
+        if not items_images:
+            item_images.append([])
+        else:
+            item_images.append([item_image for item_image in items_images][0])
 
     template = loader.get_template('catalog/index.html')
     context = {
@@ -184,12 +191,18 @@ def edit_item(request, item_id, image_name=None):
     try:
         if int(request.user.pk) == int(instance.values('item_id_id')[0]['item_id_id']):
             template = loader.get_template('catalog/edit_item.html')
-            instance = Item.objects.filter(id=int(item_id))
+            instance = Item.objects.get(id=int(item_id))
+            form_edit_item = ItemForm(initial={
+                'item_name': instance.item_name,
+                'item_price': instance.item_price,
+                'item_description': instance.item_description
+            })
+
             images = Images.objects.filter(item_id=int(item_id))
             image_form_set = modelformset_factory(Images, form=ImageForm, extra=images_quantity - len(images))
             images_form_set = image_form_set(queryset=Images.objects.none())
             context = {
-                'form_add_item': instance.values()[0],
+                'form_edit_item': form_edit_item,
                 'images': images,
                 'formset': images_form_set,
             }
@@ -203,9 +216,9 @@ def edit_item(request, item_id, image_name=None):
                 images_form_set = image_form_set(queryset=Images.objects.none())
                 context['formset'] = images_form_set
                 instance = Item.objects.filter(id=int(item_id))
-                context['form_add_item'] = instance.values()[0]
+                context['form_edit_item'] = instance.values()[0]
                 messages.success(request, 'Edycja dokonana poprawnie!')
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                return redirect('items')
             if request.method == 'POST':
                 form_edit_item = Item.objects.get(id=item_id)
                 form_edit_item.item_name = request.POST.get('item_name') if request.POST.get(
@@ -229,9 +242,9 @@ def edit_item(request, item_id, image_name=None):
                 instance = Item.objects.filter(id=int(item_id))
                 context['images'] = images
                 context['formset'] = images_form_set
-                context['form_add_item'] = instance.values()[0]
+                context['form_edit_item'] = instance.values()[0]
                 messages.success(request, 'Edycja dokonana poprawnie!')
-                return HttpResponse(template.render(context, request))
+                return redirect('items')
         else:
             messages.error(request, 'Ten przedmiot nie należy do Ciebie!')
             return redirect('items')
@@ -431,5 +444,32 @@ def login_page(request):
     return HttpResponse(template.render(context, request))
 
 # MESSAGES ############################################################################################################
+from django.views.generic import TemplateView
+from pinax.messages.models import Thread
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from pinax.messages.views import InboxView
+class InboxView(TemplateView):
+    """
+    View inbox thread list.
+    """
+    template_name = "pinax/messages/inbox.html"
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        threads = Thread.ordered(Thread.deleted(self.request.user))
+        threads.extend(Thread.ordered(Thread.inbox(self.request.user)))
+
+        folder = "inbox"
+
+        context.update({
+            "folder": folder,
+            "threads": threads,
+            "threads_unread": Thread.ordered(Thread.unread(self.request.user))
+        })
+        return context
 # All inside default tool configuration, exept templates which are inside templates/pinax/...

@@ -44,8 +44,9 @@ INSTALLED_APPS = [
     'social_django',
     'sslserver', # ONLY FOR DEVELOPMENT SHALL BE DELETED IN PRODUCTION
     'sorl.thumbnail',
-    'pinax.messages',
     'widget_tweaks',
+    'django_summernote',
+    'pinax.messages'
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,8 @@ MIDDLEWARE = [
 
 MEDIA_URL = '/catalog/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'catalog')
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 THUMBNAIL_ALIASES = {
     '': {
@@ -159,4 +162,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = ( os.path.join('bazar/static'), )
-STATIC_ROOT = "/bazar/static/"
+STATIC_ROOT = '/bazar/static'

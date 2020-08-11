@@ -1,12 +1,13 @@
 from django import forms
 from .models import User, Item, Images
-from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
+
 
 class DataForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'user_phonenumber', 'observing']
+
 
 class CustomUserCreationForm(forms.Form):
     username = forms.CharField(label="Nazwa użytkownika")
@@ -45,10 +46,12 @@ class CustomUserCreationForm(forms.Form):
         )
         return user
 
+
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
         fields = ['item_name', 'item_price', 'item_description', ]
+
 
 class ImageForm(forms.ModelForm):
     image = forms.ImageField(label='Image')

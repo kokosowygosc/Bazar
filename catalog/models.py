@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import slugify
+from django_summernote.fields import SummernoteTextField
 
 class User(AbstractUser):
     user_phonenumber = models.IntegerField(unique=False, null=True, blank=True)
@@ -11,7 +12,7 @@ class Item(models.Model):
     item_id = models.ForeignKey(User, on_delete=models.CASCADE)
     item_name = models.CharField(max_length=200)
     item_price = models.DecimalField(max_digits=12, decimal_places=2)
-    item_description = models.CharField(max_length=500)
+    item_description = SummernoteTextField(max_length=500)
     pub_date = models.DateTimeField('date published')
 
     def __str__(self):

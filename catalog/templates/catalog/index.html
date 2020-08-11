@@ -15,7 +15,7 @@
                     <div class="col-sm-8">
                         <h3><a href="/item/{{ item.id }}">{{ item.item_name }}</a></h3>
                         <h6>{{ item.pub_date }}</h6>
-                        <p><h4>{{ item.item_description|slice:":120" }}..</h4></p>
+                        <p><h4>{{ item.item_description|safe|slice:":120" }}..</h4></p>
                         {% if user.is_authenticated %}
                             {% if item.item_id_id != user.id %}
                                 {% load app_filters %}

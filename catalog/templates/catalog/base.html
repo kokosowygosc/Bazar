@@ -70,7 +70,7 @@
                     <li class="nav-item">
                         {% load i18n %}
                         {% block body_class %}
-                        <a class="nav-link" href="{% url 'pinax_messages:inbox' %}">
+                        <a class="nav-link" href="/messages/inbox/sent">
                             <i class="fa fa-envelope"></i>
                             {% if unread_threads|length > 0 %}
                                 <div style="color: #e2a545">{% trans "Nowe Wiadomości!" %}</div>

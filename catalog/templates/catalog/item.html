@@ -5,7 +5,7 @@
             <div class="row">
                 <div class="col-sm-4">
                     <h1>{{ item_details.item_name }}</h1>
-                    <h3>Opis ogłoszenia:</h3> {{ item_details.item_description }}<br><br>
+                    <h3>Opis ogłoszenia:</h3> {{ item_details.item_description|safe }}<br><br>
                     <h3 style="display: inline">Cena: {{ item_details.item_price }} zł </h3><br>
 
                     <h3 style="display: inline"> Użytkownik: </h3><a href="/user/{{ item_details.item_id_id }}">
@@ -60,7 +60,7 @@
         <div class="container"><br>
             <div class="row">
                 <div class="col-sm-12">
-                    <h3>No items are available.</h3>
+                    <h3>Najprawdopodobniej przedmiot nie jest już dostępny.</h3>
                 </div>
             </div>
         </div>
