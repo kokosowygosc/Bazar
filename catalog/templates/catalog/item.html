@@ -15,12 +15,6 @@
                             {{ user_details.username }}
                         {% endif %}
                     </a>
-                    <a href="{% url 'pinax_messages:message_user_create' user_id=user_id %}" class="btn btn-default">
-                        <h5 style="align-content: center">
-                            Wyślij wiadomość dotyczącą ogłoszenia
-                            <span class="glyphicon glyphicon-envelope"></span>
-                        </h5>
-                    </a>
                     <br><br><h6> Ogloszenie opublikowano: {{ item_details.pub_date }}</h6>
                 </div>
                 <div class="col-sm-8">
@@ -53,6 +47,25 @@
                             </a>
                         {% endif %}
                     </div>
+                </div>
+            <div class="col-12">
+                <div class="pinax-messages-create-container">
+                    {% if user.pk != form.to_user.value %}
+                    <h2>Napisz wiadomość </h2>
+                        <form class="comment-form" action="" method="post">
+                            {% csrf_token %}
+                            <input type=hidden id="id_from_user" name="from_user" value="{{ user.pk }}">
+                            <input type=hidden id="id_to_user" name="to_user" value="{{ item_details.item_id_id }}">
+                            <input type=hidden id="subject" name="subject" value="Wiadomość dotycząca ogłoszenia <a href='/item/{{ item_details.id }}'>{{ item_details.item_name }}</a>">
+                            <div class="form-group">
+                                <label for="id_content">Treść wiadomości:</label>
+                                <textarea type="text" class="form-control" required id='id_content' name="content"></textarea>
+                            </div>
+                            <button class="btn btn-success">Wyślij <span class="glyphicon glyphicon-envelope"></span></button>
+                        </form>
+                    {% else %}
+                        <p>Wiadomość do samego siebie?</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

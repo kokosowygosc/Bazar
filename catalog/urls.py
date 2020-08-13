@@ -19,7 +19,6 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 from . import views
 from django.contrib.auth import views as auth_views
-from pinax.messages.views import InboxView
 
 urlpatterns = [
     path('', views.item_list, name='index'),
@@ -39,7 +38,7 @@ urlpatterns = [
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^oauth/', include('social_django.urls', namespace='social')),
     url(r"^messages/", include("pinax.messages.urls", namespace="pinax_messages")),
-    url(r"^messages/inbox/sent/", views.InboxView.as_view(), name="inbox"),
+    url(r"^messages/inbox/", views.InboxView.as_view(), name="inbox"),
     path('summernote/', include('django_summernote.urls')),
 ]
 

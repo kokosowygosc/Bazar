@@ -26,10 +26,15 @@ DatabaseWrapper.data_types['DateTimeField'] = 'datetime' # fix for MySQL 5.5
 SECRET_KEY = '6&2^(5i!k&3c9)0l9v_&xrq)#w$22y(+4o%ej6+f_f)to5_w9z'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
-
+if DEBUG is False:
+    ALLOWED_HOSTS = [
+        '127.0.0.1:8000',
+        '*',
+    ]
+else:
+    ALLOWED_HOSTS = []
 
 # Application definition
 

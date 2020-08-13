@@ -1,23 +1,34 @@
 ﻿# -*- coding: utf-8 -*-
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from .models import Item, User, Images
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .helpers import user_is_not_logged_in
-from social_django.models import UserSocialAuth
-from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
-from django.contrib.auth.forms import AdminPasswordChangeForm, PasswordChangeForm, AuthenticationForm, SetPasswordForm
-from .forms import DataForm, ItemForm, CustomUserCreationForm, ImageForm
-from django.forms import modelformset_factory
-from django.contrib.auth import authenticate, login
-from sorl.thumbnail import delete as delete_thumbnail
 from django.core.cache import cache
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import AdminPasswordChangeForm, PasswordChangeForm, AuthenticationForm, SetPasswordForm
+from django.contrib.auth import update_session_auth_hash, authenticate, login
+from django.contrib import messages
+from django.http import HttpResponse
+from django.template import loader
+from django.views.generic import TemplateView
+from django.shortcuts import redirect
+from django.forms import modelformset_factory
+from .models import Item, User, Images
+from .helpers import user_is_not_logged_in
+from .forms import DataForm, ItemForm, CustomUserCreationForm, ImageForm
+from social_django.models import UserSocialAuth
+from sorl.thumbnail import delete as delete_thumbnail
+from pinax.messages.models import Thread, Message
 import datetime, os, random
+from django.shortcuts import render
+
+
+def handler404(request, exception=None):
+    return render(request, 'catalog/404.html', {})
+
+
+def handler500(request, exception=None):
+    return render(request, 'catalog/500.html', {})
 
 # CONSTS ##############################################################################################################
+
 
 images_quantity = 4
 randomize_items_time = 1200
@@ -80,6 +91,13 @@ def item_detail(request, item_id):
     except Exception:
         item_details = user_details = item_images = user_id = None
     template = loader.get_template('catalog/item.html')
+
+    if request.method == 'POST':
+        if 'to_user' in request.POST and 'from_user' in request.POST and 'content' in request.POST:
+            to_user = User.objects.get(id=request.POST['to_user'])
+            message = Message.new_message(from_user=request.user, to_users=[to_user], subject=request.POST['subject'], content=request.POST['content'])
+            message.thread.userthread_set.filter(user=request.user).update(deleted=False)
+            messages.info(request, "Wiadomość została wysłana")
     context = {
         'item_details': item_details,
         'user_details': user_details,
@@ -332,7 +350,7 @@ def observed(request):
     return HttpResponse(template.render(context, request))
 
 
-########################### USER #######################################################################################
+# USER ################################################################################################################
 
 @login_required
 def user_settings(request):
@@ -444,32 +462,20 @@ def login_page(request):
     return HttpResponse(template.render(context, request))
 
 # MESSAGES ############################################################################################################
-from django.views.generic import TemplateView
-from pinax.messages.models import Thread
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from pinax.messages.views import InboxView
-class InboxView(TemplateView):
-    """
-    View inbox thread list.
-    """
-    template_name = "pinax/messages/inbox.html"
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+
+class InboxView(TemplateView):
+    template_name = "pinax/messages/inbox.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        threads = Thread.ordered(Thread.deleted(self.request.user))
-        threads.extend(Thread.ordered(Thread.inbox(self.request.user)))
-
-        folder = "inbox"
+        threads = Thread.ordered(Thread.inbox(self.request.user))
+        #threads = threads.extend(Thread.ordered(Thread.deleted(self.request.user)))
 
         context.update({
-            "folder": folder,
+            "folder": "inbox",
             "threads": threads,
             "threads_unread": Thread.ordered(Thread.unread(self.request.user))
         })
         return context
-# All inside default tool configuration, exept templates which are inside templates/pinax/...
+

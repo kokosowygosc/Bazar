@@ -1,27 +1,4 @@
-{% extends 'catalog/base.html' %}
+{% extends 'catalog/item.html' %}
 {% block content %}
-    <div class="container"><br>
-        <div class="pinax-messages-create-container">
-            {% if user.pk != form.to_user.value %}
-            <h2>Nowa wiadomość</h2>
-                <form class="comment-form" action="{% url "pinax_messages:message_create" %}" method="post">
-                    {% csrf_token %}
-                    <input type=hidden id="id_to_user" name="to_user" value="{{ form.to_user.value }}">
-                    <div class="form-group">
-                        <label for="id_subject">Tytuł:</label>
-                        <input type="text" class="form-control" required id='id_subject' name="subject" value="">
-                    </div>
-                    <div class="form-group">
-                        <label for="id_content">Treść wiadomości:</label>
-                        <textarea type="text" class="form-control" required id='id_content' name="content"></textarea>
-                    </div>
-                    <a class="btn btn-info" href="{% url 'pinax_messages:inbox' %}" class="cancel">Anuluj</a>
-                    <button class="btn btn-success">Wyślij</button>
-                </form>
-            {% else %}
-                <p>Wiadomość do samego siebie?</p>
-            {% endif %}
-        </div>
-    </div>
 {% endblock %}
 
